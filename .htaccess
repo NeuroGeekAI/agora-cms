@@ -32,7 +32,7 @@ Require all denied
 </FilesMatch>
 # ── PROTÉGER RÉPERTOIRES SENSIBLES (AVANT le routing) ────────────────────
 RewriteBase /
-RewriteRule ^(config|install|data|logs|\.git|node_modules)(/|$) - [F,L]
+RewriteRule ^(config|data|logs|\.git|node_modules)(/|$) - [F,L]
 # ── SERVIR LES FICHIERS ET DOSSIERS RÉELS DIRECTEMENT ────────────────────
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
