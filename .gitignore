@@ -1,0 +1,36 @@
+# ── FICHIERS SENSIBLES — NE JAMAIS COMMITER ──────────────────────
+config/config.php
+*.env
+.env.*
+# ── UPLOADS UTILISATEUR ──────────────────────────────────────────
+uploads/*
+!uploads/.htaccess
+# ── DONNÉES LOCALES ──────────────────────────────────────────────
+data/*.sqlite
+data/*.db
+data/agora-demo.sqlite
+# ── LOGS ─────────────────────────────────────────────────────────
+*.log
+logs/
+# ── OS & ÉDITEURS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+# ── PHP LOCAL ────────────────────────────────────────────────────
+test.php
+reset-admin.php
+debug.php
+phpinfo.php
+# ── DÉMO LOCALE (pas pour la prod) ──────────────────────────────
+DEMO-*.sh
+DEMO-*.bat
+DEMO-*.ps1
+install/demo-setup.php
+config-demo-prepend.php
+# ── ZIP ──────────────────────────────────────────────────────────
+*.zip
+*.tar.gz

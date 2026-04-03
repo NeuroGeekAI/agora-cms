@@ -1,0 +1,98 @@
+# ═══════════════════════════════════════════════════════════════
+# SOUVERAIN CMS — .htaccess Production
+# O2switch — Apache 2.4 — PHP 8.2+
+# ═══════════════════════════════════════════════════════════════
+Options -Indexes +FollowSymLinks
+DirectoryIndex index.php index.html
+# ── HTTPS FORCÉ ──────────────────────────────────────────────────────────
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# ── HEADERS SÉCURITÉ ─────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+Header always set X-Frame-Options "DENY"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
+Header always set Cross-Origin-Opener-Policy "same-origin"
+Header always set Cross-Origin-Resource-Policy "same-origin"
+Header always set X-Permitted-Cross-Domain-Policies "none"
+Header always unset X-Powered-By
+Header unset ETag
+</IfModule>
+# ── PROTÉGER FICHIERS SENSIBLES (AVANT le routing) ────────────────────────
+<FilesMatch "(\.env|\.log|\.sql|\.sqlite|\.sh|\.bat|\.ps1|\.py|\.bak|\.backup|config-demo.*\.php)$">
+Require all denied
+</FilesMatch>
+<FilesMatch "^\.">
+Require all denied
+</FilesMatch>
+# ── PROTÉGER RÉPERTOIRES SENSIBLES (AVANT le routing) ────────────────────
+RewriteBase /
+RewriteRule ^(config|install|data|logs|\.git|node_modules)(/|$) - [F,L]
+# ── SERVIR LES FICHIERS ET DOSSIERS RÉELS DIRECTEMENT ────────────────────
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+# ── ROUTING ADMIN ────────────────────────────────────────────────────────
+RewriteRule ^admin/?$                    admin/index.php [L]
+RewriteRule ^admin/articles/?$           admin/articles.php [L]
+RewriteRule ^admin/edit/?$               admin/edit.php [L,QSA]
+RewriteRule ^admin/settings/?$           admin/settings.php [L]
+# ── ROUTING PAGES PUBLIQUES ───────────────────────────────────────────────
+RewriteRule ^article/([a-z0-9\-]+)/?$   article.php?slug=$1 [L,QSA]
+RewriteRule ^categorie/([a-z0-9\-]+)/?$ categorie.php?cat=$1 [L,QSA]
+RewriteRule ^handicap/?$                 pages/handicap.php [L]
+RewriteRule ^rejoindre/?$                pages/rejoindre.php [L]
+RewriteRule ^contact/?$                  pages/contact.php [L]
+RewriteRule ^mentions-legales/?$         pages/mentions.php [L]
+RewriteRule ^confidentialite/?$          pages/privacy.php [L]
+RewriteRule ^manifeste/?$                pages/manifeste.php [L]
+RewriteRule ^lois/?$                     pages/lois.php [L,QSA]
+RewriteRule ^debats/?$                   pages/debats.php [L]
+RewriteRule ^proteger-documents/?$       pages/proteger-docs.php [L]
+RewriteRule ^sitemap\.xml$               sitemap.php [L]
+RewriteRule ^recherche/?$                index.php [L,QSA]
+# ── FALLBACK 404 (uniquement si aucun fichier/dossier réel) ───────────────
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$                       404.php [L]
+# ── BLOQUER SCANNERS & BOTS MALVEILLANTS ─────────────────────────────────
+RewriteCond %{HTTP_USER_AGENT} ^-?$ [OR]
+RewriteCond %{HTTP_USER_AGENT} (libwww-perl|wget|python-requests|nikto|sqlmap|acunetix|nessus|dirbuster|gobuster|wfuzz|hydra) [NC]
+RewriteRule .* - [F,L]
+# ── BLOQUER INJECTIONS SQL DANS QUERY STRING ─────────────────────────────
+RewriteCond %{QUERY_STRING} (union.*select|select.*from|insert.*into|drop.*table|exec\(|script>) [NC]
+RewriteRule .* - [F,L]
+# ── MÉTHODES HTTP ────────────────────────────────────────────────────────
+<LimitExcept GET POST HEAD OPTIONS>
+Require all denied
+</LimitExcept>
+# ── COMPRESSION ──────────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json text/xml image/svg+xml
+SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|zip|gz)$ no-gzip dont-vary
+</IfModule>
+# ── CACHE NAVIGATEUR ─────────────────────────────────────────────────────
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpeg         "access plus 6 months"
+ExpiresByType image/png          "access plus 6 months"
+ExpiresByType image/webp         "access plus 6 months"
+ExpiresByType image/svg+xml      "access plus 6 months"
+ExpiresByType image/x-icon       "access plus 1 year"
+ExpiresByType text/css           "access plus 1 month"
+ExpiresByType application/javascript "access plus 1 month"
+ExpiresByType font/woff2         "access plus 1 year"
+</IfModule>
+# ── MIME TYPES ────────────────────────────────────────────────────────────
+<IfModule mod_mime.c>
+AddType image/webp   .webp
+AddType font/woff2   .woff2
+</IfModule>
+# ── PAGES D'ERREUR ───────────────────────────────────────────────────────
+ErrorDocument 404 /404.php
+FileETag None

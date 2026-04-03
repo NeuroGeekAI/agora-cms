@@ -1,0 +1,7 @@
+﻿User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /config/
+Disallow: /install/
+Disallow: /uploads/
+Sitemap: https://votre-domaine.fr/sitemap.xml
