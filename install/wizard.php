@@ -37,9 +37,13 @@ function wiz_test_db(string $host, string $name, string $user, string $pass): st
     }
 }
 function wiz_run_sql(PDO $pdo, string $sql): void {
+    // Supprimer les commentaires -- et /* */ avant parsing
+    $sql = preg_replace('/--[^\n]*\n?/', "\n", $sql);
+    $sql = preg_replace('/\/\*.*?\*\//s', '', $sql);
     $statements = array_filter(array_map('trim', explode(';', $sql)));
     foreach ($statements as $stmt) {
-        if ($stmt) $pdo->exec($stmt);
+        $stmt = trim($stmt);
+        if ($stmt !== '') $pdo->exec($stmt);
     }
 }
 function wiz_generate_config(array $d): string {
