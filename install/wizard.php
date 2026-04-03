@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * ═══════════════════════════════════════════════════════════════
  * AgoraCMS — Installateur Wizard (style WordPress)
@@ -8,6 +8,18 @@
  */
 session_start();
 define('WIZARD_VERSION', '1.0.0');
+// ── Sécurité : si déjà installé, bloquer l'accès au wizard ───────────────
+if (file_exists(dirname(__DIR__) . '/config/config.php') && !isset($_SESSION['wizard_done'])) {
+    http_response_code(403);
+    die('<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>AgoraCMS — Déjà installé</title>
+    <style>body{background:#0d1117;color:#e5e7eb;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+    .box{text-align:center;padding:40px;background:#161b22;border:1px solid #2d3748;border-radius:20px;max-width:480px}
+    h1{color:#34d399;font-size:1.5rem;margin-bottom:12px}p{color:#9ca3af;margin-bottom:24px}
+    a{background:#002395;color:white;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700}</style></head>
+    <body><div class="box"><h1>✅ AgoraCMS est déjà installé</h1>
+    <p>Le wizard a déjà été exécuté. Pour des raisons de sécurité, supprimez le dossier <code>install/</code> via votre cPanel.</p>
+    <a href="/">← Retour au site</a></div></body></html>');
+}
 $step = (int)($_GET['step'] ?? $_SESSION['wizard_step'] ?? 1);
 $error = '';
 $success = '';

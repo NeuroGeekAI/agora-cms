@@ -32,6 +32,11 @@ Require all denied
 </FilesMatch>
 # ── PROTÉGER RÉPERTOIRES SENSIBLES (AVANT le routing) ────────────────────
 RewriteBase /
+# ── AUTO-DÉTECTION INSTALLATION (comme WordPress) ────────────────────────
+RewriteCond %{REQUEST_URI} !^/install/
+RewriteCond %{DOCUMENT_ROOT}/config/config.php !-f
+RewriteRule ^ /install/wizard.php [L,R=302]
+# ── BLOQUER DOSSIERS SENSIBLES ────────────────────────────────────────────
 RewriteRule ^(config|data|logs|\.git|node_modules)(/|$) - [F,L]
 # ── SERVIR LES FICHIERS ET DOSSIERS RÉELS DIRECTEMENT ────────────────────
 RewriteCond %{REQUEST_FILENAME} -f [OR]
